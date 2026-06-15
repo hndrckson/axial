@@ -1,0 +1,10 @@
+{
+  "name": "Axial Narrative Intelligence",
+  "short_name": "Axial",
+  "description": "Evidence-backed narrative packs, capital models, and explorable graphs.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "orientation": "any"
+}

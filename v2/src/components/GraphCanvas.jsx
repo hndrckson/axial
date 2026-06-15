@@ -26,13 +26,13 @@ function intersect(a = [], b = []) {
 function relationBetween(root, entity) {
   const rootReason = `${root.reason} ${root.otherInformation}`.toLowerCase();
   const entityReason = `${entity.reason} ${entity.otherInformation}`.toLowerCase();
-  if (entity.name.length > 7 && rootReason.includes(entity.name.toLowerCase())) return { label: "named in source record", score: 100 };
-  if (root.name.length > 7 && entityReason.includes(root.name.toLowerCase())) return { label: "names root in record", score: 96 };
+  if (entity.name.length > 7 && rootReason.includes(entity.name.toLowerCase())) return { label: "named in source record", score: 100, kind: "mention" };
+  if (root.name.length > 7 && entityReason.includes(root.name.toLowerCase())) return { label: "names root in record", score: 96, kind: "mention" };
   const sharedSanctions = intersect(root.sanctions, entity.sanctions);
-  if (sharedSanctions.length) return { label: `${sharedSanctions.length} shared sanction${sharedSanctions.length > 1 ? "s" : ""}`, score: 70 + sharedSanctions.length * 4 };
+  if (sharedSanctions.length) return { label: `${sharedSanctions.length} shared sanction${sharedSanctions.length > 1 ? "s" : ""}`, score: 70 + sharedSanctions.length * 4, kind: "sanction" };
   const sharedCountries = intersect(root.countries, entity.countries);
-  if (sharedCountries.length) return { label: `associated with ${sharedCountries[0]}`, score: 48 };
-  if (root.regime === entity.regime) return { label: "same designation regime", score: 32 };
+  if (sharedCountries.length) return { label: `associated with ${sharedCountries[0]}`, score: 48, kind: "geography" };
+  if (root.regime === entity.regime) return { label: "same designation regime", score: 32, kind: "sanction" };
   return null;
 }
 
@@ -46,12 +46,12 @@ function position(index, total, compact) {
   return { x: (compact ? 330 : 540) + Math.cos(angle) * radiusX, y: (compact ? 260 : 330) + Math.sin(angle) * radiusY };
 }
 
-function buildNeighborhood(data, selectedId, pack, compact) {
+function buildNeighborhood(data, selectedId, pack, compact, relationFilter) {
   const root = data.entities.find((entity) => entity.id === selectedId) || data.entities[0];
   const neighbors = data.entities
     .filter((entity) => entity.id !== root.id)
     .map((entity) => ({ entity, relation: relationBetween(root, entity) }))
-    .filter((item) => item.relation)
+    .filter((item) => item.relation && (relationFilter === "all" || item.relation.kind === relationFilter))
     .sort((a, b) => b.relation.score - a.relation.score)
     .slice(0, compact ? 9 : 15);
 
@@ -86,7 +86,7 @@ function buildNeighborhood(data, selectedId, pack, compact) {
   for (let first = 0; first < neighbors.length && lateralCount < (compact ? 5 : 12); first += 1) {
     for (let second = first + 1; second < neighbors.length && lateralCount < (compact ? 5 : 12); second += 1) {
       const relation = relationBetween(neighbors[first].entity, neighbors[second].entity);
-      if (!relation || relation.score < 78) continue;
+      if (!relation || relation.score < 78 || (relationFilter !== "all" && relation.kind !== relationFilter)) continue;
       edges.push({
         id: `lateral:${neighbors[first].entity.id}:${neighbors[second].entity.id}`,
         source: neighbors[first].entity.id,
@@ -112,13 +112,13 @@ function buildNeighborhood(data, selectedId, pack, compact) {
   return { root, nodes, edges };
 }
 
-export function GraphCanvas({ pack, compact = false, onSelection }) {
+export function GraphCanvas({ pack, compact = false, onSelection, relationFilter = "all" }) {
   const [data, setData] = useState(null);
   const [selectedId, setSelectedId] = useState(packRoots[pack.id]);
   const [query, setQuery] = useState("");
   useEffect(() => { fetch("/data/ontology.json").then((response) => response.json()).then(setData); }, []);
   useEffect(() => setSelectedId(packRoots[pack.id]), [pack.id]);
-  const graph = useMemo(() => data ? buildNeighborhood(data, selectedId, pack, compact) : { nodes: [], edges: [] }, [compact, data, pack, selectedId]);
+  const graph = useMemo(() => data ? buildNeighborhood(data, selectedId, pack, compact, relationFilter) : { nodes: [], edges: [] }, [compact, data, pack, relationFilter, selectedId]);
   const [nodes, setNodes, onNodesChange] = useNodesState(graph.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(graph.edges);
   useEffect(() => { setNodes(graph.nodes); setEdges(graph.edges); onSelection?.(graph.root); }, [graph, onSelection, setEdges, setNodes]);

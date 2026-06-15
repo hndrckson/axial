@@ -60,4 +60,14 @@ P3 follow-up: the desktop bundle includes the graph package in the initial chunk
 - Replaced the narrative-centered graph with a click-to-recenter sourced entity proximity graph and lateral cluster edges.
 - Verified no horizontal overflow at normal mobile width or the narrower in-app pane, and no console errors.
 
+## Explore And Projects Iteration
+
+- Explore now leads with a horizontally scrollable chip rail for active narratives, the 1,200-record entity database, capital beneficiaries, and eight named propaganda techniques.
+- Entity search returns sourced records near the top of Explore instead of hiding the ontology in the graph inspector.
+- Technique chips are icon-led, interactive, and tied to matching narrative packs with explicit definitions and examples.
+- Projects now uses a mobile-first masonry workspace with four expandable black folders. Each folder contains notes, links, assistant sessions, and saved graph neighborhoods.
+- The assistant seed state now returns an evidence-bounded analysis, modeled metric, propagation forecast, and relationship path.
+- Graph relation filters switch among direct mentions, shared sanctions, geography, and the complete proximity neighborhood.
+- Mobile QA confirmed four navigation destinations, 12 visible entity results, four project folders, four expanded folder blocks, 11 graph nodes before filtering, and three graph nodes after selecting direct mentions.
+
 final result: passed

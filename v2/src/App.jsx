@@ -7,11 +7,15 @@ import {
   CaretDown,
   ChartLineUp,
   CheckCircle,
+  ChatCircleDots,
   CirclesThreePlus,
   ClockCounterClockwise,
   Coins,
   Compass,
+  Database,
   DotsThree,
+  FileText,
+  Folder,
   Graph,
   House,
   LinkSimple,
@@ -27,15 +31,28 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
-import { capitalRail, packs, quickPrompts } from "./data";
+import { assistantDemos, capitalRail, packs, quickPrompts, techniques } from "./data";
+import { ExploreView } from "./components/ExploreView";
 import { GraphCanvas } from "./components/GraphCanvas";
+import { ProjectsView } from "./components/ProjectsView";
 
 const navItems = [
   ["home", "Home", House],
-  ["packs", "Packs", Compass],
+  ["explore", "Explore", Compass],
   ["graph", "Graph", Graph],
-  ["library", "Library", Books],
+  ["projects", "Projects", Folder],
 ];
+
+const techniqueIcons = {
+  conflation: CirclesThreePlus,
+  "victim-blaming": Target,
+  "covert-funding": Coins,
+  "historical-revision": ClockCounterClockwise,
+  "economic-fatalism": TrendUp,
+  "proxy-media": Newspaper,
+  "clip-recycling": Pulse,
+  "cross-platform": Graph,
+};
 
 function Meta({ children, tone = "" }) {
   return <span className={`meta ${tone}`}>{children}</span>;
@@ -123,7 +140,7 @@ function HomeView({ openPack, setView, saved, toggleSaved }) {
         </div>
       </button>
 
-      <Shelf title="Moving now" subtitle="Narratives with the most movement in the last 24h." action={() => setView("packs")}>
+      <Shelf title="Moving now" subtitle="Narratives with the most movement in the last 24h." action={() => setView("explore")}>
         <div className="pack-rail">{packs.slice(1, 6).map((pack, index) => <PackCover key={pack.id} pack={pack} rank={index + 1} onOpen={openPack} />)}</div>
       </Shelf>
 
@@ -190,6 +207,7 @@ function BriefTab({ pack }) {
           <div className="block-title"><span><Sparkle /></span><div><Meta>Axial assessment</Meta><h2>What this pack explains</h2></div></div>
           <p className="lead">{pack.thesis}</p>
           <div className="boundary"><ShieldCheck /><span><strong>Evidence boundary</strong><small>{pack.boundary}</small></span></div>
+          <TechniqueStrip pack={pack} />
         </section>
         <section className="analysis-block">
           <div className="block-title"><span><Newspaper /></span><div><Meta>Live event stream</Meta><h2>Current developments</h2></div></div>
@@ -202,6 +220,21 @@ function BriefTab({ pack }) {
         <section><Meta>Propagation forecast</Meta><h3>Next 7 days</h3><ForecastMini pack={pack} />{pack.forecast.map(([horizon, score]) => <div className="rail-score" key={horizon}><span>{horizon}</span><b>{score}%</b><i><em style={{ width: `${score}%` }} /></i></div>)}</section>
         <section><Meta>Evidence posture</Meta><h3>{pack.posture}</h3><p>{pack.sources} source records support this investigation. Analytical and scenario edges remain visibly separate.</p></section>
       </aside>
+    </div>
+  );
+}
+
+function TechniqueStrip({ pack, selected, onSelect }) {
+  const visible = techniques.filter((item) => item.packIds.includes(pack.id));
+  return (
+    <div className="technique-strip">
+      <Meta>Techniques used in this narrative</Meta>
+      <div>
+        {visible.map((item) => {
+          const Icon = techniqueIcons[item.id] || Target;
+          return <button className={selected === item.id ? "active" : ""} key={item.id} onClick={() => onSelect?.(item.id)}><Icon /><span><strong>{item.label}</strong><small>{item.description}</small></span></button>;
+        })}
+      </div>
     </div>
   );
 }
@@ -262,7 +295,7 @@ function PackDetail({ pack, saved, toggleSaved, onBack, onGraph }) {
   const [tab, setTab] = useState("Brief");
   return (
     <main className="page detail-page">
-      <button className="back-button" onClick={onBack}><ArrowLeft /> Back to packs</button>
+      <button className="back-button" onClick={onBack}><ArrowLeft /> Back to explore</button>
       <PackHero pack={pack} saved={saved} toggleSaved={toggleSaved} />
       <nav className="detail-tabs">{["Brief", "Capital", "History", "Evidence"].map((item) => <button className={tab === item ? "active" : ""} key={item} onClick={() => setTab(item)}>{item}</button>)}</nav>
       {tab === "Brief" ? <BriefTab pack={pack} /> : null}
@@ -307,21 +340,24 @@ function OntologyBrowser() {
 
 function GraphView({ pack, setPackId }) {
   const [selected, setSelected] = useState(null);
+  const [relationFilter, setRelationFilter] = useState("all");
   return (
     <main className="graph-page">
       <header className="graph-header">
         <div><Meta>Entity proximity graph</Meta><h1>{selected?.name || pack.title}</h1><p>Click an entity to recenter. Distance ranks explicit source mentions and shared sourced relationships.</p></div>
-        <select value={pack.id} onChange={(event) => setPackId(event.target.value)}>{packs.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
+        <div className="graph-header-controls">
+          <nav>{[["all", "All relations"], ["mention", "Direct mentions"], ["sanction", "Shared sanctions"], ["geography", "Geography"]].map(([id, label]) => <button className={relationFilter === id ? "active" : ""} key={id} onClick={() => setRelationFilter(id)}>{label}</button>)}</nav>
+          <select value={pack.id} onChange={(event) => setPackId(event.target.value)}>{packs.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
+        </div>
       </header>
       <div className="graph-shell">
-        <GraphCanvas pack={pack} compact={window.innerWidth < 700} onSelection={setSelected} />
+        <GraphCanvas pack={pack} compact={window.innerWidth < 700} onSelection={setSelected} relationFilter={relationFilter} />
         <aside className="graph-legend">
           <Meta>Selected entity</Meta>
           <h2>{selected?.name || "Loading entity"}</h2>
           {selected ? <div className="selected-entity-meta"><span><strong>{selected.id} · {selected.type}</strong><small>{selected.position?.[0] || selected.regime}</small></span></div> : null}
           {[["source mention", "Entity is named in another official source record"], ["shared sanction", "Entities are subject to the same explicit sanction"], ["shared geography", "Entities share a sourced country association"], ["pack context", "Dashed analytical context; not a factual entity relation"]].map(([item, note], index) => <div key={item}><i className={index === 3 ? "scenario" : ""} /><span><strong>{item}</strong><small>{note}</small></span></div>)}
           <p>Proximity is a discovery aid. Shared sanctions or geography do not imply coordination, ownership, or common intent.</p>
-          <OntologyBrowser />
         </aside>
       </div>
     </main>
@@ -338,17 +374,25 @@ function LibraryView({ saved, openPack, toggleSaved }) {
   );
 }
 
-function Assistant({ query, pack, onClose, openPack, openGraph }) {
+function Assistant({ query, pack, onClose, openPack, openGraph, onAsk }) {
+  const demo = assistantDemos.find((item) => query.toLowerCase().includes(item.match)) || assistantDemos[0];
   return (
     <aside className="assistant">
       <header><div><Meta>Axial assistant</Meta><h2>{query}</h2></div><button onClick={onClose}><X /></button></header>
-      <div className="assistant-answer">
-        <span><Sparkle weight="fill" /></span>
-        <div><Meta>Best matching pack</Meta><h3>{pack.title}</h3><p>{pack.thesis}</p></div>
+      <div className="assistant-thread">
+        <p className="assistant-user">{query}</p>
+        <div className="assistant-answer">
+          <span><Sparkle weight="fill" /></span>
+          <div><Meta>Axial analysis · {pack.sources} sources</Meta><h3>{pack.title}</h3><p>{demo.answer}</p></div>
+        </div>
       </div>
-      <section><Meta>Evidence boundary</Meta><p>{pack.boundary}</p></section>
-      <section><Meta>Suggested next actions</Meta><button onClick={() => { openPack(pack.id); onClose(); }}>Open full investigation <ArrowRight /></button><button onClick={() => { openGraph(); onClose(); }}>Trace relationship graph <ArrowRight /></button></section>
-      <section><Meta>Try asking</Meta>{quickPrompts.map((item) => <p key={item}>{item}</p>)}</section>
+      <div className="assistant-result-grid">
+        <section><Meta>{demo.metricLabel}</Meta><strong>{demo.metric}</strong><small>{demo.forecast}</small></section>
+        <section><Meta>Highest-value path</Meta><p>{demo.path}</p></section>
+      </div>
+      <section className="assistant-boundary"><Meta>Evidence boundary</Meta><p>{pack.boundary}</p></section>
+      <section><Meta>Continue investigation</Meta><button onClick={() => { openPack(pack.id); onClose(); }}>Open full investigation <ArrowRight /></button><button onClick={() => { openGraph(); onClose(); }}>Trace relationship graph <ArrowRight /></button></section>
+      <section className="assistant-prompts"><Meta>Seed prompts</Meta>{quickPrompts.map((item) => <button key={item} onClick={() => onAsk(item)}>{item}<ArrowRight /></button>)}</section>
     </aside>
   );
 }
@@ -366,7 +410,8 @@ function CommandDock({ view, setView, onAsk }) {
 
 export function App() {
   const initial = useMemo(() => new URLSearchParams(window.location.search), []);
-  const [view, setViewState] = useState(initial.get("view") || "home");
+  const initialView = initial.get("view") === "packs" ? "explore" : initial.get("view") === "library" ? "projects" : initial.get("view") || "home";
+  const [view, setViewState] = useState(initialView);
   const [packId, setPackIdState] = useState(initial.get("pack") || "russian-energy");
   const [detail, setDetail] = useState(initial.get("detail") === "1");
   const [saved, setSaved] = useState(() => new Set(["russian-energy", "covert-influence"]));
@@ -391,11 +436,11 @@ export function App() {
       <AppHeader onHome={() => setView("home")} />
       {detail ? <PackDetail pack={pack} saved={saved} toggleSaved={toggleSaved} onBack={closeDetail} onGraph={() => setView("graph")} /> : null}
       {!detail && view === "home" ? <HomeView openPack={openPack} setView={setView} saved={saved} toggleSaved={toggleSaved} /> : null}
-      {!detail && view === "packs" ? <PacksView openPack={openPack} /> : null}
+      {!detail && view === "explore" ? <ExploreView openPack={openPack} /> : null}
       {!detail && view === "graph" ? <GraphView pack={pack} setPackId={setPackId} /> : null}
-      {!detail && view === "library" ? <LibraryView saved={saved} openPack={openPack} toggleSaved={toggleSaved} /> : null}
+      {!detail && view === "projects" ? <ProjectsView /> : null}
       <CommandDock view={view} setView={setView} onAsk={setAssistantQuery} />
-      {assistantQuery ? <Assistant query={assistantQuery} pack={assistantPack} onClose={() => setAssistantQuery("")} openPack={openPack} openGraph={() => setView("graph")} /> : null}
+      {assistantQuery ? <Assistant query={assistantQuery} pack={assistantPack} onClose={() => setAssistantQuery("")} openPack={openPack} openGraph={() => setView("graph")} onAsk={setAssistantQuery} /> : null}
     </div>
   );
 }

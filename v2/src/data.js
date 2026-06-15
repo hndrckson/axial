@@ -357,3 +357,144 @@ export const quickPrompts = [
   "Trace the biolabs narrative into Western commentary",
   "Compare documented and scenario edges in covert influence",
 ];
+
+export const techniques = [
+  {
+    id: "conflation",
+    label: "Conflation",
+    description: "Blends a documented fact with an unsupported conclusion so the claim inherits the fact's credibility.",
+    example: "Public-health laboratories become evidence of a covert weapons program.",
+    packIds: ["biolabs", "peace-ultimatum"],
+  },
+  {
+    id: "victim-blaming",
+    label: "Victim blaming",
+    description: "Reassigns responsibility for aggression or coercion to the target and its partners.",
+    example: "Rejecting coercive conditions is framed as refusing peace.",
+    packIds: ["peace-ultimatum"],
+  },
+  {
+    id: "covert-funding",
+    label: "Covert funding",
+    description: "Hides state direction behind independent-presenting publishers, creators, or intermediaries.",
+    example: "Operational funding is separated from the public-facing media brand.",
+    packIds: ["covert-influence", "adaptive-fimi"],
+  },
+  {
+    id: "historical-revision",
+    label: "Historical revision",
+    description: "Selectively edits chronology or context to make a current action appear defensive or inevitable.",
+    example: "Prior aggression is removed from the timeline used to explain the current event.",
+    packIds: ["peace-ultimatum"],
+  },
+  {
+    id: "economic-fatalism",
+    label: "Economic fatalism",
+    description: "Presents enforcement as inherently futile while foregrounding its cost to the enforcing coalition.",
+    example: "Sanctions only hurt European consumers and can never constrain export revenue.",
+    packIds: ["russian-energy"],
+  },
+  {
+    id: "proxy-media",
+    label: "Proxy media",
+    description: "Routes a state-aligned frame through outlets that appear editorially independent.",
+    example: "A state-media frame is republished without clear provenance.",
+    packIds: ["covert-influence", "prc-discourse", "adaptive-fimi"],
+  },
+  {
+    id: "clip-recycling",
+    label: "Clip recycling",
+    description: "Repackages an older statement or image as evidence of a new development.",
+    example: "A 2022 clip is circulated as if it were recorded this week.",
+    packIds: ["biolabs", "adaptive-fimi"],
+  },
+  {
+    id: "cross-platform",
+    label: "Cross-platform coordination",
+    description: "Uses multiple services and replacement assets to sustain reach after moderation or rebuttal.",
+    example: "Removed domains are replaced and redistributed through messaging apps.",
+    packIds: ["covert-influence", "prc-discourse", "adaptive-fimi"],
+  },
+];
+
+export const projects = [
+  {
+    id: "energy-enforcement",
+    title: "Russian energy enforcement",
+    summary: "Monitor tanker designations, insurer exposure, and political repetition of the sanctions-futility frame.",
+    updated: "Updated 18 min ago",
+    accent: "#b64b35",
+    items: {
+      Notes: ["Shadow fleet definitions", "Price-cap enforcement gaps", "Weekly policy memo", "Claims requiring source review"],
+      Links: ["EU designation update", "Price Cap Coalition advisory", "KSE tanker tracker", "Parliament hearing"],
+      Chats: ["Who gains from weak enforcement?", "Trace insurer exposure", "Forecast next trigger", "Separate fact from scenario"],
+      Graphs: ["Kovalchuk neighborhood", "Shipping services cluster", "Policy-to-revenue path", "Sovcomflot relationships"],
+    },
+  },
+  {
+    id: "biolabs-reactivation",
+    title: "Biolabs reactivation map",
+    summary: "Track recycled clips, source mutations, and entry points into Western political commentary.",
+    updated: "Updated 41 min ago",
+    accent: "#778f83",
+    items: {
+      Notes: ["Documented lab program", "Unsupported weapons claim", "Clip provenance", "Counter-record language"],
+      Links: ["DoD threat-reduction record", "FactCheck counter-record", "AP amplification report", "Archive of original clip"],
+      Chats: ["Find earliest reactivation", "Compare claim mutations", "List Western amplifiers", "Build evidence boundary"],
+      Graphs: ["Claim lineage", "Cross-language pickup", "Commentary bridge", "Public-health entities"],
+    },
+  },
+  {
+    id: "covert-influence",
+    title: "Covert influence infrastructure",
+    summary: "Build the documented funding and distribution map without treating editorial similarity as attribution.",
+    updated: "Updated 2 hr ago",
+    accent: "#748b9b",
+    items: {
+      Notes: ["Attribution threshold", "Funding evidence", "Replacement domains", "Open questions"],
+      Links: ["Treasury designation", "State Department pillars", "EEAS FIMI report", "Platform takedown"],
+      Chats: ["Documented edges only", "Find proxy operators", "Model replacement behavior", "Review weak links"],
+      Graphs: ["Funding chain", "Proxy publishers", "Video distribution", "Platform exposure"],
+    },
+  },
+  {
+    id: "prc-partnerships",
+    title: "PRC media partnerships",
+    summary: "Map disclosed content relationships, regional distribution, and policy-sensitive commercial entities.",
+    updated: "Updated yesterday",
+    accent: "#8d5b43",
+    items: {
+      Notes: ["Disclosure standards", "Regional outlet sample", "Procurement sensitivity", "Translation changes"],
+      Links: ["Information environment report", "Media freedom index", "Partner disclosure pages", "Diplomatic account archive"],
+      Chats: ["Map content partners", "Compare official language", "Find procurement exposure", "Check attribution limits"],
+      Graphs: ["Partner network", "Diplomatic amplification", "Regional audiences", "Commercial sensitivity"],
+    },
+  },
+];
+
+export const assistantDemos = [
+  {
+    match: "benefit",
+    answer: "The strongest direct sensitivity is in export revenue and freight utilization. The model ranks Rosneft and Sovcomflot highest, but it does not infer they promoted the narrative.",
+    metric: "88 / 100",
+    metricLabel: "modeled benefit sensitivity",
+    path: "Futility frame -> enforcement pressure -> export access -> realized revenue",
+    forecast: "A fresh tanker designation creates a 74% probability of a 24-hour pickup cycle.",
+  },
+  {
+    match: "biolab",
+    answer: "The current spike is a reactivation, not a new allegation. An older political clip is being attached to a new records debate, then distributed through state media and commentary channels.",
+    metric: "82%",
+    metricLabel: "24-hour propagation forecast",
+    path: "Records debate -> recycled clip -> state-media segment -> Western commentary",
+    forecast: "Cross-language pickup is likely to persist for seven days if another official statement lands.",
+  },
+  {
+    match: "documented",
+    answer: "Documented edges show explicit funding, designations, or sourced entity associations. Scenario edges estimate outcome sensitivity and remain visually dashed throughout Axial.",
+    metric: "71",
+    metricLabel: "documented source records",
+    path: "State direction -> covert funding -> proxy publisher -> distribution",
+    forecast: "Replacement infrastructure remains the highest-confidence persistence mechanism.",
+  },
+];

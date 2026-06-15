@@ -2,16 +2,30 @@ import {
   ArrowRight,
   ArrowSquareOut,
   BookmarkSimple,
+  Broadcast,
   CaretLeft,
   CaretRight,
+  ChartLineUp,
+  ClockCounterClockwise,
+  Coins,
   FileText,
+  FunnelSimple,
+  Globe,
   Graph,
   MagnifyingGlass,
+  Newspaper,
+  Path,
   Plus,
+  Pulse,
   ShieldCheck,
+  Sparkle,
+  Target,
+  TrendUp,
+  UserFocus,
+  WarningCircle,
 } from "@phosphor-icons/react";
 import { FormEvent, useMemo, useState } from "react";
-import { narrativeClusters, newsObservations } from "../intelligence";
+import { NewsObservation, narrativeClusters, newsObservations } from "../intelligence";
 import { compactRegime, OntologyEntity, searchEntities, useOntology } from "../ontology";
 import { useAxialStore } from "../store";
 import { GraphWorkspace } from "./GraphView";
@@ -45,68 +59,202 @@ function LoadingScreen() {
 
 export function HomeScreen() {
   const { data } = useOntology();
-  const { setActiveTab, openNarrative, projects } = useAxialStore();
+  const { setActiveTab, openNarrative, openEntity } = useAxialStore();
+  const [selectedObservationId, setSelectedObservationId] = useState(newsObservations[0].id);
+  const [feedMode, setFeedMode] = useState<"all" | "state" | "fast">("all");
+  const [sortHighFirst, setSortHighFirst] = useState(true);
+  const visibleObservations = useMemo(() => {
+    const filtered = newsObservations.filter((item) => {
+      if (feedMode === "fast") return item.velocity >= 60;
+      if (feedMode === "state") return item.kind !== "fact-check" && item.kind !== "threat-report";
+      return true;
+    });
+    return sortHighFirst ? [...filtered].sort((a, b) => b.velocity - a.velocity) : filtered;
+  }, [feedMode, sortHighFirst]);
   if (!data) return <LoadingScreen />;
+  const selectedObservation = newsObservations.find((item) => item.id === selectedObservationId) ?? newsObservations[0];
+  const selectedCluster = narrativeClusters.find((item) => item.id === selectedObservation.clusterId) ?? narrativeClusters[0];
+  const observationIcon = (item: NewsObservation) => {
+    if (item.kind === "politician") return <UserFocus />;
+    if (item.kind === "state-media") return <Broadcast />;
+    if (item.kind === "threat-report") return <ShieldCheck />;
+    if (item.kind === "government") return <Globe />;
+    return <Newspaper />;
+  };
 
   return (
-    <main className="workspace-page home-workspace">
-      <header className="workspace-heading">
-        <div><span className="section-label">Narrative monitor</span><h1>What is being pushed, by whom, and why?</h1><p>Published observations are clustered into narrative hypotheses, connected to sourced actors, and paired with counter-evidence.</p></div>
-        <button className="plain-button" onClick={() => setActiveTab("Explore")}>Open countergraph <ArrowRight /></button>
+    <main className="intel-home">
+      <header className="intel-topbar">
+        <div className="intel-title">
+          <span className="live-indicator"><Pulse weight="fill" /> Live intelligence</span>
+          <div><h1>Media events</h1><span>{newsObservations.length} monitored events across {narrativeClusters.length} active clusters</span></div>
+        </div>
+        <div className="intel-filters" aria-label="Feed filters">
+          <button className={feedMode === "all" ? "active" : ""} onClick={() => setFeedMode("all")}><Pulse /> All signals</button>
+          <button className={feedMode === "state" ? "active" : ""} onClick={() => setFeedMode("state")}><Globe /> State narratives</button>
+          <button className={feedMode === "fast" ? "active" : ""} onClick={() => setFeedMode("fast")}><TrendUp /> Fast moving</button>
+          <button className={sortHighFirst ? "active" : ""} onClick={() => setSortHighFirst((value) => !value)} aria-label="Sort feed by velocity"><FunnelSimple /></button>
+        </div>
       </header>
 
-      <section className="source-summary">
-        <div><span>Monitored observations</span><strong>{newsObservations.length}</strong><small>source-backed seed corpus</small></div>
-        <div><span>Narrative clusters</span><strong>{narrativeClusters.length}</strong><small>analytical hypotheses</small></div>
-        <div><span>Factual entities</span><strong>{data.meta.entityCount.toLocaleString()}</strong><small>actual source records</small></div>
-        <div><span>Explicit relations</span><strong>{data.meta.relationshipCount.toLocaleString()}</strong><small>source-derived edges</small></div>
+      <section className="intel-metrics" aria-label="Intelligence overview">
+        <div><span className="metric-icon"><Broadcast /></span><span><small>Signals today</small><strong>312</strong><em>+28% / 24h</em></span></div>
+        <div><span className="metric-icon"><Graph /></span><span><small>Factual graph</small><strong>{data.meta.entityCount.toLocaleString()}</strong><em>{data.meta.relationshipCount.toLocaleString()} relations</em></span></div>
+        <div><span className="metric-icon"><WarningCircle /></span><span><small>High velocity</small><strong>03</strong><em>needs review</em></span></div>
+        <div><span className="metric-icon"><ShieldCheck /></span><span><small>Evidence posture</small><strong>Strict</strong><em>fact / inference split</em></span></div>
       </section>
 
-      <div className="home-grid">
-        <section className="work-section">
-          <div className="section-heading"><div><span className="section-label">Monitor feed</span><h2>Published items and threat reporting</h2></div><span className="analytical-label">Observed / reported</span></div>
-          <div className="news-feed">
-            {newsObservations.map((item) => {
+      <div className="intel-layout">
+        <aside className="feed-panel">
+          <header className="panel-header">
+            <div><span className="section-label">Monitored feed</span><h2>Published events</h2></div>
+            <button className={sortHighFirst ? "active" : ""} onClick={() => setSortHighFirst((value) => !value)} aria-label="Sort feed by velocity"><FunnelSimple /></button>
+          </header>
+          <div className="feed-list">
+            {visibleObservations.map((item) => {
               const cluster = narrativeClusters.find((entry) => entry.id === item.clusterId)!;
               return (
-                <article className="news-observation" key={item.id}>
-                  <button onClick={() => openNarrative(item.clusterId)}>
-                    <span className="observation-source">{item.publisher} · {item.published}</span>
-                    <strong>{item.title}</strong>
-                    <p>{item.assessment}</p>
-                    <span className="mapped-narrative"><Graph /> Maps to: {cluster.title}</span>
-                  </button>
-                  <a href={item.url} target="_blank" rel="noreferrer" aria-label="Open source"><ArrowSquareOut /></a>
-                </article>
+                <button
+                  className={item.id === selectedObservation.id ? "feed-card active" : "feed-card"}
+                  key={item.id}
+                  onClick={() => setSelectedObservationId(item.id)}
+                >
+                  <span className="feed-card-top">
+                    <span className="event-kind">{observationIcon(item)}{item.kind.replace("-", " ")}</span>
+                    <span className="event-velocity"><Pulse />{item.velocity}</span>
+                  </span>
+                  <strong>{item.title}</strong>
+                  <span className="feed-source">{item.publisher}<i />{item.published}</span>
+                  <span className="feed-narrative"><Graph />{cluster.title}</span>
+                  <span className="feed-card-bottom">
+                    <span>{item.signals} signals</span><span>{item.reach}</span><CaretRight />
+                  </span>
+                </button>
               );
             })}
           </div>
-        </section>
-        <aside className="work-section">
-          <div className="section-heading"><div><span className="section-label">Active narrative clusters</span><h2>Analyst watchlist</h2></div></div>
-          <div className="narrative-watchlist">
-            {narrativeClusters.map((cluster) => (
-              <button key={cluster.id} onClick={() => openNarrative(cluster.id)}>
-                <span><i className={`cluster-status ${cluster.status}`} />{cluster.actor}</span>
-                <strong>{cluster.title}</strong>
-                <small>{cluster.confidence} confidence · {cluster.status}</small>
-              </button>
-            ))}
-          </div>
+        </aside>
+
+        <article className="analysis-panel">
+          <header className="analysis-header">
+            <div className="analysis-kicker"><span className={`cluster-status ${selectedCluster.status}`} />{selectedCluster.status} cluster<span>{selectedObservation.country}</span><span>{selectedObservation.published}</span></div>
+            <h2>{selectedObservation.title}</h2>
+            <p>{selectedObservation.summary}</p>
+            <div className="analysis-actions">
+              <a href={selectedObservation.url} target="_blank" rel="noreferrer"><Newspaper /> Open source <ArrowSquareOut /></a>
+              <button onClick={() => openNarrative(selectedCluster.id)}><ShieldCheck /> Open countergraph</button>
+              <button onClick={() => setActiveTab("Graph")}><Graph /> Full graph</button>
+            </div>
+            <div className="tag-row">{selectedObservation.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+          </header>
+
+          <section className="analysis-stat-strip">
+            <div><span><Pulse />Velocity</span><strong>{selectedObservation.velocity}</strong><small>fast moving</small></div>
+            <div><span><Target />Match confidence</span><strong>{selectedObservation.confidence}%</strong><small>{selectedCluster.confidence} confidence</small></div>
+            <div><span><Broadcast />Observed signals</span><strong>{selectedObservation.signals}</strong><small>{selectedObservation.reach} estimated reach</small></div>
+            <div><span><Path />Propagation</span><strong>{selectedCluster.channels.length}</strong><small>channel classes</small></div>
+          </section>
+
+          <section className="analysis-section assessment-section">
+            <div className="section-icon-title"><span><Sparkle /></span><div><small>Axial assessment</small><h3>Why this event matters</h3></div></div>
+            <p className="lead-analysis">{selectedObservation.analysis}</p>
+            <div className="distinction-callout"><ShieldCheck /><span><strong>Critical evidence boundary</strong><small>{selectedObservation.keyDistinction}</small></span></div>
+          </section>
+
+          <section className="analysis-section">
+            <div className="section-heading-line">
+              <div className="section-icon-title"><span><Graph /></span><div><small>Connection graph</small><h3>How the framing travels</h3></div></div>
+              <button onClick={() => openNarrative(selectedCluster.id)}>Explore cluster <ArrowRight /></button>
+            </div>
+            <div className="connection-flow">
+              {selectedCluster.connections.map((connection, index) => (
+                <div className="connection-row" key={`${connection.from}-${connection.to}`}>
+                  <span className="connection-index">{String(index + 1).padStart(2, "0")}</span>
+                  <span><strong>{connection.from}</strong><small>{connection.relation}</small><strong>{connection.to}</strong></span>
+                  <em className={connection.posture}>{connection.posture}</em>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="analysis-section">
+            <div className="section-icon-title"><span><ClockCounterClockwise /></span><div><small>Narrative evolution</small><h3>Lineage and reactivation</h3></div></div>
+            <div className="evolution-list">
+              {selectedCluster.evolution.map((point) => (
+                <div className="evolution-row" key={`${point.date}-${point.label}`}>
+                  <time>{point.date}</time>
+                  <span><strong>{point.label}</strong><small>{point.detail}</small></span>
+                  <span className="strength-meter"><i style={{ width: `${point.strength}%` }} /><small>{point.strength}</small></span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="analysis-section">
+            <div className="section-icon-title"><span><ChartLineUp /></span><div><small>Propagation forecast</small><h3>Modeled spread conditions</h3></div></div>
+            <div className="forecast-grid">
+              {selectedCluster.forecast.map((forecast) => (
+                <article className="forecast-card" key={forecast.horizon}>
+                  <span><ClockCounterClockwise />{forecast.horizon}</span><strong>{forecast.probability}%</strong>
+                  <div className="probability-track"><i style={{ width: `${forecast.probability}%` }} /></div>
+                  <small>{forecast.reach} reach</small><p>{forecast.condition}</p>
+                </article>
+              ))}
+            </div>
+            <p className="method-note">Forecasts are modeled scenarios based on current signal velocity and documented channel behavior, not predictions of coordination or intent.</p>
+          </section>
+
+          <section className="analysis-section">
+            <div className="section-icon-title"><span><Coins /></span><div><small>Capital and strategic exposure</small><h3>Who may gain or carry risk</h3></div></div>
+            <div className="exposure-list">
+              {selectedCluster.exposures.map((exposure) => (
+                <article className="exposure-card" key={exposure.name}>
+                  <div><span className={`exposure-direction ${exposure.direction}`}>{exposure.direction}</span><strong>{exposure.name}</strong><small>{exposure.kind}</small></div>
+                  <p>{exposure.assessment}</p>
+                  <span className="exposure-value"><strong>{exposure.value}</strong><small>{exposure.confidence} confidence</small></span>
+                  {exposure.entityId ? <button onClick={() => openEntity(exposure.entityId!)}>Open entity <ArrowRight /></button> : null}
+                </article>
+              ))}
+            </div>
+            <p className="method-note">Exposure identifies scenario sensitivity. It does not establish that a listed entity funded, directed, or knowingly benefited from a narrative.</p>
+          </section>
+
+          <section className="analysis-section evidence-section">
+            <div className="section-icon-title"><span><ShieldCheck /></span><div><small>Evidence ledger</small><h3>Sources and counter-record</h3></div></div>
+            <div className="evidence-columns">
+              <div><span className="evidence-column-label">Observed and contextual</span>{selectedCluster.evidence.map((item) => <a key={item.url} href={item.url} target="_blank" rel="noreferrer"><span><strong>{item.label}</strong><small>{item.publisher} · {item.date}</small></span><ArrowSquareOut /></a>)}</div>
+              <div><span className="evidence-column-label">Counter-evidence</span>{selectedCluster.counter.map((item) => <a key={item.url} href={item.url} target="_blank" rel="noreferrer"><span><strong>{item.label}</strong><small>{item.publisher} · {item.date}</small></span><ArrowSquareOut /></a>)}</div>
+            </div>
+          </section>
+        </article>
+
+        <aside className="watch-rail">
+          <section>
+            <header className="panel-header"><div><span className="section-label">Active watchlist</span><h2>Narrative clusters</h2></div></header>
+            <div className="watch-clusters">
+              {narrativeClusters.map((cluster) => (
+                <button className={cluster.id === selectedCluster.id ? "active" : ""} key={cluster.id} onClick={() => {
+                  const observation = newsObservations.find((item) => item.clusterId === cluster.id);
+                  if (observation) setSelectedObservationId(observation.id);
+                }}>
+                  <span><i className={`cluster-status ${cluster.status}`} />{cluster.actor}</span>
+                  <strong>{cluster.title}</strong><small>{cluster.status} · {cluster.confidence} confidence</small>
+                </button>
+              ))}
+            </div>
+          </section>
+          <section className="coverage-module">
+            <div className="section-icon-title"><span><Graph /></span><div><small>Ontology coverage</small><h3>Production seed</h3></div></div>
+            <dl>
+              <div><dt>Factual entities</dt><dd>{data.meta.entityCount.toLocaleString()}</dd></div>
+              <div><dt>Explicit relations</dt><dd>{data.meta.relationshipCount.toLocaleString()}</dd></div>
+              <div><dt>Analytical clusters</dt><dd>{narrativeClusters.length}</dd></div>
+              <div><dt>Evidence boundary</dt><dd>Strict</dd></div>
+            </dl>
+            <button onClick={() => setActiveTab("Graph")}>Open ontology <ArrowRight /></button>
+          </section>
         </aside>
       </div>
-
-      <section className="work-section">
-        <div className="section-heading"><div><span className="section-label">Factual entity layer</span><h2>Open a sourced actor neighborhood</h2></div><button onClick={() => setActiveTab("Graph")}>Open full graph</button></div>
-        <EntityTable entities={data.entities.slice(0, 12)} compact />
-      </section>
-
-      <section className="work-section">
-        <div className="section-heading"><div><span className="section-label">Cases</span><h2>Active local projects</h2></div><button onClick={() => setActiveTab("Projects")}>Manage projects</button></div>
-        <div className="case-list">
-          {projects.map((project) => <button key={project.id} onClick={() => setActiveTab("Projects")}><span><strong>{project.name}</strong><small>{project.description}</small></span><span>{project.savedEntities.length} entities · {project.notes.length} notes</span></button>)}
-        </div>
-      </section>
     </main>
   );
 }

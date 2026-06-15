@@ -23,17 +23,23 @@
 ## Responsive And Interaction QA
 
 - Two-floor assistant/navigation dock is `76px` high with a `42px` assistant floor and `34px` navigation floor.
-- Mobile `390px` viewport has no horizontal overflow.
+- Media-events Home now opens a full investigation workspace with assessment, evidence boundary, connection path, narrative evolution, propagation forecast, exposure scenarios, and evidence ledger.
+- Feed contains ten source-backed media events across six analytical clusters; observations, inferences, modeled forecasts, and exposure scenarios remain visibly labeled.
+- Feed filters and velocity sorting are functional. The Fast moving filter reduces the current corpus from ten events to four.
+- Selecting a feed event updates the full investigation workspace without navigation.
+- Full graph and countergraph actions route into the deeper research surfaces.
+- Mobile narrow-width QA has no horizontal page overflow; the feed becomes a horizontal event selector and the investigation modules stack below it.
 - Entity directory search for `bank` returns 37 actual records.
 - Opening a search result recenters the graph on that entity.
 - Clicking a relationship facet expands a graph from 6 to 18 nodes.
 - Graph nodes drag successfully.
 - Mobile graph stage remains usable at approximately `499px` high.
 - Command search for `Kiselyov` returns a sourced ontology match.
-- Narrative monitor contains five source-backed observations and five curated narrative clusters.
+- Narrative monitor contains ten source-backed observations and six curated narrative clusters.
 - Selecting a monitored observation opens its countergraph with claims, tactics, counter-evidence, and evidence ledger.
 - URL input clearly labels keyword narrative mapping as a hypothesis when live extraction is not connected.
 - Browser console and page errors: none.
+- In-app Browser DOM, layout, routing, and interaction checks passed. Screenshot capture timed out in the Browser backend during this pass, so the prior visual screenshots remain the latest image evidence.
 
 ## Build
 

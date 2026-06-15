@@ -329,6 +329,22 @@ p { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
 .strength-meter::before, .probability-track { content: ""; height: 3px; grid-column: 1; grid-row: 1; border-radius: 5px; background: var(--border); }
 .strength-meter i { height: 3px; grid-column: 1; grid-row: 1; border-radius: 5px; background: var(--accent); }
 .strength-meter small { grid-column: 2; color: var(--muted); font: 400 9px/1 IBM Plex Mono, monospace; }
+.narrative-chart { margin-top: 17px; padding: 12px 12px 4px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); overflow: hidden; }
+.narrative-chart svg { display: block; width: 100%; height: auto; min-height: 210px; overflow: visible; }
+.chart-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; padding: 1px 2px 10px; color: var(--muted); font: 500 8px/1 IBM Plex Mono, monospace; text-transform: uppercase; }
+.chart-legend span { display: flex; align-items: center; gap: 5px; }
+.chart-legend span:last-child { margin-left: auto; color: var(--muted-2); }
+.chart-legend i { width: 20px; height: 2px; background: var(--accent); }
+.chart-legend i.forecast-line { background: repeating-linear-gradient(90deg, var(--warning) 0 5px, transparent 5px 8px); }
+.chart-gridline { stroke: var(--border); stroke-width: 1; }
+.chart-axis-label, .chart-x-label, .chart-value { fill: var(--muted); font: 8px IBM Plex Mono, monospace; }
+.chart-x-label { fill: var(--muted-2); }
+.chart-value { fill: var(--text); font-weight: 500; }
+.history-line, .projection-line { fill: none; stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.projection-line { stroke: var(--warning); stroke-dasharray: 6 5; }
+.history-point { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.forecast-point { fill: var(--surface); stroke: var(--warning); stroke-width: 2; }
+.forecast-divider { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 2 4; }
 .forecast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 16px; }
 .forecast-card { min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .forecast-card > span { display: flex; align-items: center; gap: 5px; color: var(--muted); font: 500 9px/1 IBM Plex Mono, monospace; text-transform: uppercase; }
@@ -339,6 +355,37 @@ p { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
 .forecast-card > small { display: block; margin-top: 8px; color: var(--accent); font: 500 9px/1 IBM Plex Mono, monospace; text-transform: uppercase; }
 .forecast-card p { margin-top: 9px; font-size: 10px; line-height: 1.5; }
 .method-note { margin-top: 12px; color: var(--muted-2); font-size: 9px; line-height: 1.55; }
+.capital-heading { align-items: start; }
+.capital-sort { display: flex; gap: 4px; }
+.capital-sort button { min-height: 29px; padding: 0 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-raised); color: var(--muted); font-size: 9px; }
+.capital-sort button:hover, .capital-sort button.active { border-color: var(--border-strong); color: var(--text); background: var(--surface-focus); }
+.capital-overview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 16px; }
+.capital-overview > div { padding: 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); }
+.capital-overview span, .capital-overview strong, .capital-overview small { display: block; }
+.capital-overview span { color: var(--muted); font-size: 8px; }
+.capital-overview strong { margin-top: 8px; font: 500 17px/1 IBM Plex Mono, monospace; }
+.capital-overview small { margin-top: 5px; color: var(--muted-2); font-size: 8px; line-height: 1.35; }
+.capital-matrix { margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.capital-matrix-head, .capital-row { display: grid; grid-template-columns: minmax(180px, 1.35fr) minmax(78px, .48fr) minmax(78px, .48fr) minmax(78px, .48fr) minmax(210px, 1.25fr); gap: 12px; align-items: center; }
+.capital-matrix-head { min-height: 31px; padding: 0 10px; background: var(--surface-raised); color: var(--muted-2); font: 500 8px/1 IBM Plex Mono, monospace; text-transform: uppercase; }
+.capital-row { padding: 12px 10px; border-top: 1px solid var(--border); background: var(--surface); }
+.capital-row:hover { background: var(--surface-raised); }
+.capital-entity strong, .capital-entity small, .capital-outcome strong, .capital-outcome small { display: block; }
+.capital-entity strong { margin-top: 7px; font-size: 11px; font-weight: 500; line-height: 1.35; }
+.capital-entity small { margin-top: 5px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+.score-cell strong { display: block; font: 500 16px/1 IBM Plex Mono, monospace; }
+.score-cell > span { display: block; height: 3px; margin-top: 7px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.score-cell > span i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.score-cell.benefit > span i { background: var(--positive); }
+.score-cell.evidence > span i { background: var(--warning); }
+.score-cell small { display: block; margin-top: 6px; color: var(--muted-2); font-size: 7px; line-height: 1.35; }
+.capital-outcome strong { font-size: 10px; font-weight: 500; line-height: 1.4; }
+.capital-outcome small { margin-top: 5px; color: var(--accent); font-size: 8px; line-height: 1.4; }
+.capital-outcome p { margin-top: 7px; font-size: 8px; line-height: 1.45; }
+.capital-outcome button { min-height: 27px; display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; padding: 0 7px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface-raised); color: var(--text); font-size: 8px; }
+.capital-outcome button svg { width: 11px; }
+.subsection-heading { margin-top: 25px; padding-top: 18px; border-top: 1px solid var(--border); }
+.subsection-heading h4 { margin: 6px 0 0; font-size: 12px; font-weight: 500; }
 .exposure-card { display: grid; grid-template-columns: minmax(140px, .8fr) minmax(180px, 1.4fr) minmax(130px, .7fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
 .exposure-card:last-child { border-bottom: 1px solid var(--border); }
 .exposure-card > div > strong, .exposure-card > div > small, .exposure-value strong, .exposure-value small { display: block; }
@@ -601,10 +648,26 @@ p { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
   .connection-row em { grid-column: 2; justify-self: start; }
   .evolution-row { grid-template-columns: 58px minmax(0, 1fr); gap: 9px; }
   .strength-meter { grid-column: 2; width: 100%; }
+  .narrative-chart { padding: 9px 4px 0; overflow-x: auto; }
+  .narrative-chart svg { width: 660px; max-width: none; min-height: 218px; }
+  .chart-legend { padding-inline: 6px; }
+  .chart-legend span:last-child { width: 100%; margin-left: 0; }
   .forecast-grid, .evidence-columns { grid-template-columns: 1fr; }
   .forecast-card { display: grid; grid-template-columns: 1fr auto; gap: 0 12px; }
   .forecast-card > strong { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
   .forecast-card .probability-track, .forecast-card > small, .forecast-card p { grid-column: 1 / -1; }
+  .capital-heading { display: block; }
+  .capital-sort { margin-top: 12px; overflow-x: auto; }
+  .capital-sort button { flex: 1; }
+  .capital-overview { grid-template-columns: repeat(2, 1fr); }
+  .capital-matrix { border: 0; overflow: visible; }
+  .capital-matrix-head { display: none; }
+  .capital-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px 8px; margin-top: 7px; padding: 13px; border: 1px solid var(--border); border-radius: 8px; }
+  .capital-entity, .capital-outcome { grid-column: 1 / -1; }
+  .capital-outcome { padding-top: 11px; border-top: 1px solid var(--border); }
+  .capital-outcome p { font-size: 10px; }
+  .capital-outcome button { width: 100%; justify-content: space-between; }
+  .score-cell small { font-size: 8px; }
   .exposure-card { display: block; padding: 13px 0; }
   .exposure-card p, .exposure-value, .exposure-card > button { margin-top: 10px; }
   .exposure-card > button { width: 100%; justify-content: space-between; }

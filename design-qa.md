@@ -24,6 +24,10 @@
 
 - Two-floor assistant/navigation dock is `76px` high with a `42px` assistant floor and `34px` navigation floor.
 - Media-events Home now opens a full investigation workspace with assessment, evidence boundary, connection path, narrative evolution, propagation forecast, exposure scenarios, and evidence ledger.
+- Narrative evolution now includes a combined observed-history and dashed forecast graph with point values and a clearly marked forecast boundary.
+- Capital analysis now ranks connected profiles with separate connection, benefit-sensitivity, and evidence scores plus modeled benefit ranges and assumptions.
+- The biolabs case contains eight capital/system profiles; users can sort by benefit, connection, or evidence score.
+- Sourced capital profiles drill into their factual ontology records. Scenario-only profiles remain visibly labeled and do not imply factual coordination.
 - Feed contains ten source-backed media events across six analytical clusters; observations, inferences, modeled forecasts, and exposure scenarios remain visibly labeled.
 - Feed filters and velocity sorting are functional. The Fast moving filter reduces the current corpus from ten events to four.
 - Selecting a feed event updates the full investigation workspace without navigation.

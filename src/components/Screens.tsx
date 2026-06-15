@@ -25,7 +25,7 @@ import {
   WarningCircle,
 } from "@phosphor-icons/react";
 import { FormEvent, useMemo, useState } from "react";
-import { NewsObservation, narrativeClusters, newsObservations } from "../intelligence";
+import { capitalProfiles, NewsObservation, narrativeClusters, newsObservations } from "../intelligence";
 import { compactRegime, OntologyEntity, searchEntities, useOntology } from "../ontology";
 import { useAxialStore } from "../store";
 import { GraphWorkspace } from "./GraphView";
@@ -57,12 +57,61 @@ function LoadingScreen() {
   return <div className="loading-state">{error ? `Ontology unavailable: ${error}` : "Loading sourced ontology..."}</div>;
 }
 
+function NarrativeForecastChart({ clusterId }: { clusterId: string }) {
+  const cluster = narrativeClusters.find((item) => item.id === clusterId) ?? narrativeClusters[0];
+  const historical = cluster.evolution.map((point, index) => ({ label: point.date, value: point.strength, index, forecast: false }));
+  const projected = cluster.forecast.map((point, index) => ({ label: point.horizon, value: point.probability, index: historical.length + index, forecast: true }));
+  const points = [...historical, ...projected];
+  const width = 720;
+  const height = 238;
+  const left = 34;
+  const right = 18;
+  const top = 22;
+  const bottom = 44;
+  const chartWidth = width - left - right;
+  const chartHeight = height - top - bottom;
+  const x = (index: number) => left + (index / Math.max(1, points.length - 1)) * chartWidth;
+  const y = (value: number) => top + ((100 - value) / 100) * chartHeight;
+  const historicalPath = historical.map((point) => `${x(point.index)},${y(point.value)}`).join(" ");
+  const forecastWithOrigin = historical.length ? [historical[historical.length - 1], ...projected] : projected;
+  const forecastPath = forecastWithOrigin.map((point) => `${x(point.index)},${y(point.value)}`).join(" ");
+
+  return (
+    <div className="narrative-chart">
+      <div className="chart-legend">
+        <span><i className="observed-line" />Observed intensity</span>
+        <span><i className="forecast-line" />Modeled forecast</span>
+        <span>0-100 narrative intensity index</span>
+      </div>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Observed narrative history and forecast graph">
+        {[0, 25, 50, 75, 100].map((value) => (
+          <g key={value}>
+            <line className="chart-gridline" x1={left} x2={width - right} y1={y(value)} y2={y(value)} />
+            <text className="chart-axis-label" x={left - 8} y={y(value) + 3} textAnchor="end">{value}</text>
+          </g>
+        ))}
+        <polyline className="history-line" points={historicalPath} />
+        <polyline className="projection-line" points={forecastPath} />
+        {points.map((point) => (
+          <g key={`${point.label}-${point.index}`}>
+            <circle className={point.forecast ? "forecast-point" : "history-point"} cx={x(point.index)} cy={y(point.value)} r="4" />
+            <text className="chart-value" x={x(point.index)} y={y(point.value) - 10} textAnchor="middle">{point.value}</text>
+            <text className="chart-x-label" x={x(point.index)} y={height - 17} textAnchor="middle">{point.label}</text>
+          </g>
+        ))}
+        {historical.length && projected.length ? <line className="forecast-divider" x1={x(historical.length - .5)} x2={x(historical.length - .5)} y1={top} y2={height - bottom} /> : null}
+      </svg>
+    </div>
+  );
+}
+
 export function HomeScreen() {
   const { data } = useOntology();
   const { setActiveTab, openNarrative, openEntity } = useAxialStore();
   const [selectedObservationId, setSelectedObservationId] = useState(newsObservations[0].id);
   const [feedMode, setFeedMode] = useState<"all" | "state" | "fast">("all");
   const [sortHighFirst, setSortHighFirst] = useState(true);
+  const [capitalSort, setCapitalSort] = useState<"connectionScore" | "benefitScore" | "evidenceScore">("benefitScore");
   const visibleObservations = useMemo(() => {
     const filtered = newsObservations.filter((item) => {
       if (feedMode === "fast") return item.velocity >= 60;
@@ -74,6 +123,7 @@ export function HomeScreen() {
   if (!data) return <LoadingScreen />;
   const selectedObservation = newsObservations.find((item) => item.id === selectedObservationId) ?? newsObservations[0];
   const selectedCluster = narrativeClusters.find((item) => item.id === selectedObservation.clusterId) ?? narrativeClusters[0];
+  const capitalRows = [...(capitalProfiles[selectedCluster.id] ?? [])].sort((a, b) => b[capitalSort] - a[capitalSort]);
   const observationIcon = (item: NewsObservation) => {
     if (item.kind === "politician") return <UserFocus />;
     if (item.kind === "state-media") return <Broadcast />;
@@ -179,6 +229,7 @@ export function HomeScreen() {
 
           <section className="analysis-section">
             <div className="section-icon-title"><span><ClockCounterClockwise /></span><div><small>Narrative evolution</small><h3>Lineage and reactivation</h3></div></div>
+            <NarrativeForecastChart clusterId={selectedCluster.id} />
             <div className="evolution-list">
               {selectedCluster.evolution.map((point) => (
                 <div className="evolution-row" key={`${point.date}-${point.label}`}>
@@ -205,7 +256,44 @@ export function HomeScreen() {
           </section>
 
           <section className="analysis-section">
-            <div className="section-icon-title"><span><Coins /></span><div><small>Capital and strategic exposure</small><h3>Who may gain or carry risk</h3></div></div>
+            <div className="section-heading-line capital-heading">
+              <div className="section-icon-title"><span><Coins /></span><div><small>Capital connection model</small><h3>Ranked entities, sensitivity, and estimated benefit</h3></div></div>
+              <div className="capital-sort" aria-label="Sort capital entities">
+                <button className={capitalSort === "benefitScore" ? "active" : ""} onClick={() => setCapitalSort("benefitScore")}>Benefit</button>
+                <button className={capitalSort === "connectionScore" ? "active" : ""} onClick={() => setCapitalSort("connectionScore")}>Connection</button>
+                <button className={capitalSort === "evidenceScore" ? "active" : ""} onClick={() => setCapitalSort("evidenceScore")}>Evidence</button>
+              </div>
+            </div>
+            <div className="capital-overview">
+              <div><span>Connected profiles</span><strong>{capitalRows.length}</strong><small>documented, inferred, and scenario</small></div>
+              <div><span>High connection</span><strong>{capitalRows.filter((item) => item.connectionScore >= 80).length}</strong><small>score 80 or above</small></div>
+              <div><span>High benefit sensitivity</span><strong>{capitalRows.filter((item) => item.benefitScore >= 75).length}</strong><small>scenario sensitivity</small></div>
+              <div><span>High evidence</span><strong>{capitalRows.filter((item) => item.evidenceScore >= 85).length}</strong><small>source confidence</small></div>
+            </div>
+            <div className="capital-matrix">
+              <div className="capital-matrix-head"><span>Rank / entity</span><span>Connection</span><span>Benefit</span><span>Evidence</span><span>Estimated outcome</span></div>
+              {capitalRows.map((profile, index) => (
+                <article className="capital-row" key={profile.name}>
+                  <div className="capital-entity">
+                    <span className={`exposure-direction ${profile.direction}`}>{String(index + 1).padStart(2, "0")} · {profile.posture}</span>
+                    <strong>{profile.name}</strong>
+                    <small>{profile.kind} · {profile.relation}</small>
+                  </div>
+                  <div className="score-cell"><strong>{profile.connectionScore}</strong><span><i style={{ width: `${profile.connectionScore}%` }} /></span><small>relationship proximity</small></div>
+                  <div className="score-cell benefit"><strong>{profile.benefitScore}</strong><span><i style={{ width: `${profile.benefitScore}%` }} /></span><small>outcome sensitivity</small></div>
+                  <div className="score-cell evidence"><strong>{profile.evidenceScore}</strong><span><i style={{ width: `${profile.evidenceScore}%` }} /></span><small>source confidence</small></div>
+                  <div className="capital-outcome">
+                    <strong>{profile.estimatedBenefit}</strong>
+                    <small>{profile.benefitBasis}</small>
+                    <p>{profile.scenario}</p>
+                    {profile.entityId ? <button onClick={() => openEntity(profile.entityId!)}>Open sourced entity <ArrowRight /></button> : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+            <p className="method-note">Connection scores summarize documented or modeled proximity. Benefit scores and ranges are scenario outputs, not evidence that an entity promoted, funded, or realized profit from the narrative.</p>
+
+            <div className="subsection-heading"><span className="section-label">Portfolio outcomes</span><h4>Broader beneficiaries and exposed systems</h4></div>
             <div className="exposure-list">
               {selectedCluster.exposures.map((exposure) => (
                 <article className="exposure-card" key={exposure.name}>
@@ -216,7 +304,6 @@ export function HomeScreen() {
                 </article>
               ))}
             </div>
-            <p className="method-note">Exposure identifies scenario sensitivity. It does not establish that a listed entity funded, directed, or knowingly benefited from a narrative.</p>
           </section>
 
           <section className="analysis-section evidence-section">

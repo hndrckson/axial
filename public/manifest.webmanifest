@@ -1,0 +1,10 @@
+{
+  "name": "Axial Investigation Workspace",
+  "short_name": "Axial",
+  "description": "Sourced entity and relationship investigation workspace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090a0a",
+  "theme_color": "#090a0a",
+  "orientation": "any"
+}

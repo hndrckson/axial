@@ -761,3 +761,109 @@ button:hover .cover-art > img { transform: scale(1.025); }
   .command-dock nav button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .graph-loading { padding: 0 40px; line-height: 1.55; text-align: center; }
 }
+
+@media (max-width: 700px) {
+  body { font-size: 14px; }
+  .meta { font-size: 9.5px; line-height: 1.25; letter-spacing: .01em; }
+  .wordmark { font-size: 22px; }
+  .date-switcher { font-size: 12px; }
+
+  .home-intro p, .explore-heading p, .projects-heading p, .page-heading p { font-size: 14px; }
+  .home-intro h1, .page-heading h1 { font-size: 38px; }
+  .home-intro span, .page-heading span, .explore-heading span, .projects-heading span { font-size: 13px; line-height: 1.5; }
+  .home-intro h1, .page-heading h1, .explore-heading h1, .projects-heading h1,
+  .home-intro span, .page-heading span, .explore-heading span, .projects-heading span {
+    max-width: min(360px, calc(100vw - 24px));
+    overflow-wrap: anywhere;
+  }
+  .featured-copy h2 { font-size: 28px; }
+  .featured-copy > p { font-size: 11px; line-height: 1.45; }
+  .featured-posture small, .featured-posture strong, .featured-posture em { font-size: 9px; line-height: 1.25; }
+  .featured-media > .meta { font-size: 8px; }
+
+  .section-head h2 { font-size: 23px; }
+  .section-head p { font-size: 12px; line-height: 1.45; }
+  .pack-cover { flex-basis: 112px; }
+  .pack-cover > strong { font-size: 12px; line-height: 1.2; white-space: normal; }
+  .pack-movement i, .pack-movement small { font-size: 9px; }
+  .cover-title strong { font-size: 9px; }
+  .capital-tile { flex-basis: 152px; min-height: 102px; padding: 12px 10px; }
+  .capital-tile strong { font-size: 12px; }
+  .capital-tile em, .capital-tile small { font-size: 10px; line-height: 1.35; }
+  .development-list button { min-height: 66px; grid-template-columns: 42px 4px minmax(0, 1fr) 38px 18px; gap: 8px; padding: 8px 0; }
+  .development-list time, .development-list b { font-size: 9px; }
+  .development-list span strong { font-size: 12px; line-height: 1.3; }
+  .development-list span small { font-size: 10px; line-height: 1.35; }
+  .home-preview h3 { font-size: 20px; }
+  .lineage-preview > div { font-size: 10px; }
+  .mini-forecast small { font-size: 11px; }
+
+  .detail-title h1 { font-size: 54px; }
+  .detail-title > p { font-size: 14px; }
+  .detail-actions button, .detail-tabs button, .back-button { font-size: 12px; }
+  .block-title h2 { font-size: 21px; }
+  .lead { font-size: 23px; }
+  .boundary strong { font-size: 12px; }
+  .boundary small, .detail-rail p, .section-copy { font-size: 12px; }
+  .large-development-list strong, .capital-table article > div:first-child strong, .outcome strong, .history-chart strong, .evidence-ledger strong { font-size: 13px; }
+  .large-development-list small, .capital-table article > div:first-child small, .outcome small, .history-chart small, .evidence-ledger small { font-size: 11px; }
+
+  .explore-heading h1, .projects-heading h1 { font-size: 44px; }
+  .explore-chips button { height: 44px; padding: 0 14px; font-size: 12px; }
+  .explore-chips svg { width: 17px; height: 17px; }
+  .explore-feed h2, .explore-capital h2, .entity-explorer h2 { font-size: 26px; }
+  .explore-list > button { min-height: 164px; grid-template-columns: 118px minmax(0, 1fr) 14px; gap: 13px; padding: 13px 0; }
+  .explore-pack-thumb span { font-size: 8px; }
+  .explore-pack-thumb strong { font-size: 12px; }
+  .explore-pack-copy h3 { font-size: 25px; }
+  .explore-pack-copy > p { font-size: 12px; line-height: 1.45; }
+  .explore-pack-copy h3, .explore-pack-copy > p { max-width: 100%; overflow-wrap: anywhere; }
+  .explore-pack-stats { font-size: 9px; }
+  .inline-techniques span { font-size: 9px; padding: 6px 7px; }
+  .technique-focus h2 { font-size: 29px; }
+  .technique-focus p { font-size: 13px; }
+  .technique-focus blockquote { font-size: 10px; }
+  .entity-explorer input { font-size: 13px; }
+  .entity-result-grid strong, .explore-capital strong { font-size: 13px; }
+  .entity-result-grid span > small, .explore-capital span > small, .entity-explorer > p { font-size: 10px; }
+  .explore-capital b { font-size: 19px; }
+
+  .folder-summary h2 { font-size: 31px; }
+  .folder-summary p { font-size: 13px; line-height: 1.45; }
+  .folder-summary h2, .folder-summary p {
+    max-width: min(335px, calc(100vw - 56px));
+    overflow-wrap: anywhere;
+  }
+  .folder-counts span { font-size: 10px; }
+  .folder-counts b { font-size: 16px; }
+  .folder-blocks header strong { font-size: 10px; }
+  .folder-blocks button { min-height: 43px; font-size: 10px; line-height: 1.35; }
+  .project-note h3 { font-size: 24px; }
+  .project-note p { font-size: 12px; }
+  .project-note span:last-child { font-size: 9px; }
+
+  .graph-header h1 { font-size: 34px; }
+  .graph-header h1 {
+    max-width: min(360px, calc(100vw - 24px));
+    overflow-wrap: anywhere;
+  }
+  .graph-header-controls nav button { height: 36px; font-size: 10px; padding: 0 10px; }
+  .graph-header select, .graph-search input { font-size: 12px; }
+  .graph-node { width: 146px; min-height: 76px; padding: 10px; }
+  .graph-node strong { font-size: 12px; }
+  .graph-node span, .graph-node small { font-size: 9px; }
+  .graph-legend strong { font-size: 11px; }
+  .graph-legend small { font-size: 9px; }
+
+  .command-dock { height: 96px; grid-template-rows: 48px 48px; }
+  .command-dock input { font-size: 15px; }
+  .command-dock form > svg { width: 19px; height: 19px; }
+  .command-dock form button { width: 34px; height: 34px; }
+  .command-dock nav button { font-size: 10.5px; }
+  .command-dock nav svg { width: 19px; height: 19px; }
+
+  .assistant header h2 { font-size: 22px; }
+  .assistant p, .assistant section button, .assistant-user { font-size: 13px !important; }
+  .assistant-answer h3 { font-size: 21px; }
+  .assistant-result-grid small, .assistant-result-grid p { font-size: 11px; }
+}
